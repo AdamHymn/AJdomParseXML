@@ -14,7 +14,7 @@ import org.jdom.input.SAXBuilder;
 public class Main {
 
 	public static void main(String[] args) {
-		parseMainXml("http://192.168.1.14:8888/palmcity/public/main.xml");
+		parseMainXml("http://localhost:8080/palmcity/public/main.xml");
 	}
 	
 	public static void parseMainXml(String path){
@@ -29,40 +29,162 @@ public class Main {
 			Element root = doc.getRootElement();
 			Element os = root.getChild("os");
 			List list = os.getChildren("o");
+			System.out.println("大类别数目："+list.size()+"个");
 			for (int i = 0; i < list.size(); i++) {
 				Element oEl = (Element) list.get(i);
 				String title = oEl.getChildText("t");
 				String frontImage = oEl.getChildText("fi");
 				String backImage = oEl.getChildText("bc");
-				System.out.println("-oel-"+i+"-->"+title);
-				System.out.println("-oel-"+i+"-->"+frontImage);
-				System.out.println("-oel-"+i+"-->"+backImage);
+				System.out.println("-oel-"+(i+1)+"-->"+title);
+				System.out.println("-oel-"+(i+1)+"-->"+frontImage);
+				System.out.println("-oel-"+(i+1)+"-->"+backImage);
 				Element dsEl = oEl.getChild("ds");
 				List dList = dsEl.getChildren("d");
+				System.out.println("大类别--（"+title+"）下的子分类数目："+dList.size()+"个");
 				for (int j = 0; j < dList.size(); j++) {
 					Element dEl = (Element) dList.get(j);
 					String childTitle = dEl.getChildText("t");
 					System.out.println("--childTitle-->"+childTitle);
 					Element isEl = dEl.getChild("is");
 					List iList = isEl.getChildren("i");
+					System.out.println("子分类--（"+childTitle+"）下的组件数目："+iList.size()+"个");
 					for (int k = 0; k < iList.size(); k++) {
 						Element iEl = (Element) iList.get(k);
 						String iTitle = iEl.getChildText("t");
-						String ctype = iEl.getChildText("c");
+						String ctype = iEl.getChildText("c").trim();//组件类型很重要，根据不同的类型，元数据会不同。当然，解析方法和展示方法也不同。
 						System.out.println("--iTitle-->"+iTitle);
 						System.out.println("--ctype-->"+ctype);
 						List mList = iEl.getChildren("m");
-						for (int l = 0; l < mList.size(); l++) {
-							Element mEl =(Element) mList.get(l);
-							String mUrl = mEl.getChildText("url");
-							System.out.println("--mUrl-->"+mUrl);
-							List adList = mEl.getChildren("ad");
-							for (int m = 0; m < adList.size(); m++) {
-								Element adEl = (Element) adList.get(m);
-								String adStr = adEl.getText();
-								System.out.println("--adstr-->"+adStr);
+						System.out.println("组件--（"+iTitle+"）下的元数据数目："+mList.size()+"个");
+						//此处，开始根据组件类型，分情况解析
+						if(ctype.equalsIgnoreCase("singletextlist")
+								|| ctype.equalsIgnoreCase("singletextlist")
+								|| ctype.equalsIgnoreCase("singleimagetextlist")
+								|| ctype.equalsIgnoreCase("html5page")
+								|| ctype.equalsIgnoreCase("carousel")
+						  ){
+							for (int l = 0; l < mList.size(); l++) {
+								Element mEl =(Element) mList.get(l);
+								String mUrl = mEl.getChildText("url");
+								System.out.println("--mUrl-->"+mUrl);
+								List adList = mEl.getChildren("ad");
+								System.out.println("元数据中广告的数目："+adList.size()+"个");
+								if(adList != null){
+									for (int m = 0; m < adList.size(); m++) {
+										Element adEl = (Element) adList.get(m);
+										String adType = adEl.getChildText("type");
+										String adTitle = adEl.getChildText("title");
+										String adImage = adEl.getChildText("image");
+										String adUrl = adEl.getChildText("url");
+										System.out.println("--adType-->"+adType);
+										System.out.println("--adTitle-->"+adTitle);
+										System.out.println("--adImage-->"+adImage);
+										System.out.println("--adUrl-->"+adUrl);
+									}
+								}
 							}
-						}
+						   }else 
+							   if(ctype.equalsIgnoreCase("multtextlist") || ctype.equalsIgnoreCase("multimagetextlist")){
+									for (int l = 0; l < mList.size(); l++) {
+										Element mEl =(Element) mList.get(l);
+//										String mUrl = mEl.getChildText("url");
+//										System.out.println("--mUrl-->"+mUrl);
+										List columnList = mEl.getChildren("ad");
+										System.out.println("元数据中(栏目)的数目："+columnList.size()+"个");
+										if(columnList != null){
+											for (int m = 0; m < columnList.size(); m++) {
+												Element columnEl = (Element) columnList.get(m);
+												String columnTitle = columnEl.getChildText("title");
+												String columnUrl = columnEl.getChildText("url");
+												System.out.println("--columnTitle-->"+columnTitle);
+												System.out.println("--columnUrl-->"+columnUrl);
+											}
+										}
+										List adList = mEl.getChildren("ad");
+										System.out.println("元数据中（广告）的数目："+adList.size()+"个");
+										if(adList != null){
+											for (int m = 0; m < adList.size(); m++) {
+												Element adEl = (Element) adList.get(m);
+												String adType = adEl.getChildText("type");
+												String adTitle = adEl.getChildText("title");
+												String adImage = adEl.getChildText("image");
+												String adUrl = adEl.getChildText("url");
+												System.out.println("--adType-->"+adType);
+												System.out.println("--adTitle-->"+adTitle);
+												System.out.println("--adImage-->"+adImage);
+												System.out.println("--adUrl-->"+adUrl);
+											}
+										}
+									}
+							   }else
+								   if(ctype.equalsIgnoreCase("imagelink") || ctype.equalsIgnoreCase("textlink")){
+										for (int l = 0; l < mList.size(); l++) {
+											Element mEl =(Element) mList.get(l);
+											List linkList = mEl.getChildren("link");
+											System.out.println("元数据中(link)的数目："+linkList.size()+"个");
+											if(linkList != null){
+												for (int m = 0; m < linkList.size(); m++) {
+													Element linkEl = (Element) linkList.get(m);
+													String linkType = linkEl.getChildText("type");
+													String linkTitle = linkEl.getChildText("title");
+													String linkImage = linkEl.getChildText("image");
+													String linkUrl = linkEl.getChildText("url");
+													System.out.println("--linkType-->"+linkType);
+													System.out.println("--linkTitle-->"+linkTitle);
+													System.out.println("--linkImage-->"+linkImage);
+													System.out.println("--linkUrl-->"+linkUrl);
+												}
+											}
+											List adList = mEl.getChildren("ad");
+											System.out.println("元数据中（广告）的数目："+adList.size()+"个");
+											if(adList != null){
+												for (int m = 0; m < adList.size(); m++) {
+													Element adEl = (Element) adList.get(m);
+													String adType = adEl.getChildText("type");
+													String adTitle = adEl.getChildText("title");
+													String adImage = adEl.getChildText("image");
+													String adUrl = adEl.getChildText("url");
+													System.out.println("--adType-->"+adType);
+													System.out.println("--adTitle-->"+adTitle);
+													System.out.println("--adImage-->"+adImage);
+													System.out.println("--adUrl-->"+adUrl);
+												}
+											}
+										}
+								   }else
+									   if(ctype.equalsIgnoreCase("imageapp") || ctype.equalsIgnoreCase("textapp")){
+										   for (int l = 0; l < mList.size(); l++) {
+												Element mEl =(Element) mList.get(l);
+												List appList = mEl.getChildren("app");
+												System.out.println("元数据中(app)的数目："+appList.size()+"个");
+												if(appList != null){
+													for (int m = 0; m < appList.size(); m++) {
+														Element appkEl = (Element) appList.get(m);
+														String appType = appkEl.getChildText("type");
+														String appTitle = appkEl.getChildText("title");
+														String appImage = appkEl.getChildText("image");
+														String appUrl = appkEl.getChildText("url");
+														String appPath = appkEl.getChildText("path");
+														System.out.println("--appType-->"+appType);
+														System.out.println("--appTitle-->"+appTitle);
+														System.out.println("--appImage-->"+appImage);
+														System.out.println("--appUrl-->"+appUrl);
+														System.out.println("--appPath-->"+appPath);
+													}
+												}
+										   }
+									   }else
+										   if(ctype.equalsIgnoreCase("activity")){
+											   for (int l = 0; l < mList.size(); l++) {
+												Element cEl = (Element) mList.get(l);
+												String cPath = cEl.getText();
+												System.out.println("--cPath-->"+cPath);
+											}
+										   }else{
+											   System.out.println("--!!!!!!-->"+"无此组件类型！！");
+											   return;
+										   }
+
 					}
 				}			
 
