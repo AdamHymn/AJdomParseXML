@@ -1,12 +1,9 @@
 package com.main;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jdom.Document;
@@ -14,64 +11,11 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-
 public class Main {
 
 	public static void main(String[] args) {
-		String city = "太原";
-		try {
-			System.out.println("--->"+URLEncoder.encode(city , "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//		parseWeatherXml("http://api.map.baidu.com/telematics/v3/weather?location=%E5%A4%AA%E5%8E%9F&ak=8f110426274bb8a3788ce9352720c457");
-		try {
-			parseWeatherXml("http://api.map.baidu.com/telematics/v3/weather?location="+URLEncoder.encode(city , "UTF-8")+"&ak=8f110426274bb8a3788ce9352720c457");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//		parseMainXml("http://localhost:8080/palmcity/public/main.xml");
+		parseMainXml("http://localhost:8080/palmcity/public/main.xml");
 	}
-	
-	/**解析百度天气预报信息的xml*/
-	public static void parseWeatherXml(String path){
-		List<String[]> ls = new ArrayList<>();
-		String info = null;
-		try {
-			URL url = new URL(path);
-			URLConnection uc = url.openConnection();
-			uc.setConnectTimeout(10000);
-			uc.setDoInput(true);
-			
-			SAXBuilder saxBuilder = new SAXBuilder(false);
-			org.jdom.Document doc = saxBuilder.build(uc.getInputStream());
-			org.jdom.Element root = doc.getRootElement();
-			System.out.println("aa-->"+root.getName());
-			Element resultsEl = root.getChild("results");
-			
-			Element weatherEl = resultsEl.getChild("weather_data");
-//			System.out.println("bb-->"+resultsEl.getContentSize());
-			for (int i = 0; i < weatherEl.getContentSize()-2;i++ ) {
-				i++;
-				if(weatherEl.getContent(i).toString().equals("[Element: <date/>]")){
-					System.out.println("========================");
-				}
-				System.out.println("----weather---->"+weatherEl.getContent(i).getValue());
-				
-			}		
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-		}
-		
-		
-		
-	}
-	
 	
 	public static void parseMainXml(String path){
 		try {
@@ -145,7 +89,7 @@ public class Main {
 										Element mEl =(Element) mList.get(l);
 //										String mUrl = mEl.getChildText("url");
 //										System.out.println("--mUrl-->"+mUrl);
-										List columnList = mEl.getChildren("column");
+										List columnList = mEl.getChildren("ad");
 										System.out.println("元数据中(栏目)的数目："+columnList.size()+"个");
 										if(columnList != null){
 											for (int m = 0; m < columnList.size(); m++) {
