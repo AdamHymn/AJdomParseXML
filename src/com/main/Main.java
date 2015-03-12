@@ -23,7 +23,7 @@ public class Main {
 			URLConnection urlConnection = url.openConnection();
 			urlConnection.setDoInput(true);
 			urlConnection.setConnectTimeout(10000);
-			
+			System.out.println("test!");
 			SAXBuilder saxBuilder = new SAXBuilder(false);
 			Document doc = saxBuilder.build(url.openStream());
 			Element root = doc.getRootElement();
